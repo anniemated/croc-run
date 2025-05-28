@@ -5,12 +5,14 @@ Made by intern: Annie!!
 """
 
 import pygame
+from random import randint
 
 # Initialize Pygame and create a window
 pygame.init()
 screen = pygame.display.set_mode((800, 400))
 clock = pygame.time.Clock()
 running = True  # Pygame main loop, kills pygame when False
+start_time = 0
 
 # Game state variables
 screen_type = 1 # 1: menu, 2: game, 3: game over
@@ -28,11 +30,62 @@ score_rect = score_surf.get_rect(center=(400, 50))
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
 player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
+
+# Load obstacles
 egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
 egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
 
+fly_surf = pygame.image.load("graphics/fly_1.png").convert_alpha()
+
+obstacle_rect_list = []
+
+# Load menu screen assets
+game_name = game_font.render("Pixel Runner",False,"Black")
+game_name_rect = game_name.get_rect(center=(400,200))
+
+# Load game over screen assets
+game_over_text = game_font.render("Game Over...\nTry again?",False,"White")
+game_over_rect = game_over_text.get_rect(center=(400,200))
+
+#Timer
+obstacle_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(obstacle_timer,1600)
+
+def obstacle_movement(obstacle_list):
+    if obstacle_list:
+        for obstacles_rect in obstacle_list:
+            obstacles_rect.x -= 5
+            
+            if obstacles_rect.bottom == GROUND_Y:
+                screen.blit(egg_surf,obstacles_rect)
+            else:
+                screen.blit(fly_surf,obstacles_rect)
+
+        obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100]
+
+        return obstacle_list
+    else: return []
+
+def collisions(player,obstacles):
+    if obstacles:
+        for obstacles_rect in obstacles:
+            if player.colliderect(obstacles_rect):
+                return False
+    return True
+
+
+def display_score():
+    current_time = pygame.time.get_ticks() - start_time
+    current_time //= 1000
+    global score_surf, score_rect
+    score_surf = game_font.render(f"{current_time}", False, (64,64,64))
+    score_rect = score_surf.get_rect(center=(400,50))
+    screen.blit(score_surf,score_rect)
+
 def menu():
     screen.fill("white")
+    screen.blit(game_name,game_name_rect)
+    
 
 def game():
     screen.fill("purple")  # Wipe the screen
@@ -43,15 +96,11 @@ def game():
     pygame.draw.rect(screen, "#c0e8ec", score_rect)
     pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
     screen.blit(score_surf, score_rect)
-
-    # Adjust egg's horizontal location then blit it
-    egg_rect.x -= 5
-    if egg_rect.right <= 0:
-        egg_rect.left = 800
-    screen.blit(egg_surf, egg_rect)
+    display_score()
 
 def game_over():
     screen.fill("black")
+    screen.blit(game_over_text, game_over_rect)
 
 while running:
 # Player actions
@@ -61,7 +110,7 @@ while running:
             running = False
 
         # Player movement
-        elif screen_type == 2:
+        if screen_type == 2:
             # When player wants to jump by pressing SPACE
             if (
                 event.type == pygame.KEYDOWN
@@ -74,7 +123,13 @@ while running:
             # When player wants to play again by pressing SPACE
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 screen_type = 2
-                egg_rect.left = 800
+                start_time = int(pygame.time.get_ticks())
+        
+        if event.type == obstacle_timer and screen_type == 2:
+            if randint(0,2):
+                obstacle_rect_list.append(egg_surf.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+            else:
+                obstacle_rect_list.append(fly_surf.get_rect(bottomleft = (randint(800,900),270)))
 
 # Different screens
     # Menu screen
@@ -90,15 +145,19 @@ while running:
         if player_rect.bottom > GROUND_Y:
             player_rect.bottom = GROUND_Y
         screen.blit(player_surf, player_rect)
-        # When player collides with enemy, game ends
-        if egg_rect.colliderect(player_rect):
-            screen_type = 3
+
+        # When player collides with enemy, game over screen
+        if not collisions(player_rect, obstacle_rect_list):
+            screen_type = 3  # Switch to game over screen
+        
+        #Obstacle movement
+        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
         
     # Game over screen
     elif screen_type == 3:
         game_over()
 
-    # flip the display to put your work on screen
+    # Flip the display to put your work on screen
     pygame.display.flip()
 
     clock.tick(60)  # Limits game loop to 60 FPS
