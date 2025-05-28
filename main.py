@@ -25,6 +25,7 @@ bg_music = pygame.mixer.Sound("audio/music.mp3")
 jump_sound = pygame.mixer.Sound("audio/jump.wav")
 chomp_sound = pygame.mixer.Sound("audio/chomp1.wav")
 
+bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
 
 # Load level assets
@@ -41,10 +42,13 @@ player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
 # Load obstacles
 egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
 egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
-
 fly_surf = pygame.image.load("graphics/fly_1.png").convert_alpha()
 
 obstacle_rect_list = []
+
+# Load collectibles
+#fruit_surf =
+#fruit_rect = 
 
 # Load menu screen assets
 game_name = game_font.render("Pixel Runner",False,"Black")
@@ -130,6 +134,8 @@ while running:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 screen_type = 2
                 start_time = int(pygame.time.get_ticks())
+                obstacle_rect_list = []
+
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
@@ -153,7 +159,7 @@ while running:
         screen.blit(player_surf, player_rect)
 
         # When player collides with enemy, game over screen
-        if not collisions(player_rect, obstacle_rect_list):
+        if collisions(player_rect, obstacle_rect_list) != True:
             screen_type = 3  # Switch to game over screen
         
         #Obstacle movement
