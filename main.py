@@ -51,7 +51,7 @@ obstacle_rect_list = []
 #fruit_rect = 
 
 # Load menu screen assets
-game_name = game_font.render("Pixel Runner",False,"Black")
+game_name = game_font.render("CROC RUN",False,"Black")
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load game over screen assets
