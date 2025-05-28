@@ -20,6 +20,13 @@ GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
 
+# Load sounds
+bg_music = pygame.mixer.Sound("audio/music.mp3")
+jump_sound = pygame.mixer.Sound("audio/jump.wav")
+chomp_sound = pygame.mixer.Sound("audio/chomp1.wav")
+
+bg_music.play(loops = -1)
+
 # Load level assets
 SKY_SURF = pygame.image.load("graphics/level/sky.png").convert()
 GROUND_SURF = pygame.image.load("graphics/level/ground.png").convert()
@@ -73,7 +80,6 @@ def collisions(player,obstacles):
                 return False
     return True
 
-
 def display_score():
     current_time = pygame.time.get_ticks() - start_time
     current_time //= 1000
@@ -86,7 +92,6 @@ def menu():
     screen.fill("white")
     screen.blit(game_name,game_name_rect)
     
-
 def game():
     screen.fill("purple")  # Wipe the screen
 
@@ -118,6 +123,7 @@ while running:
                 or event.type == pygame.MOUSEBUTTONDOWN
             ) and player_rect.bottom >= GROUND_Y:
                 players_gravity_speed = JUMP_GRAVITY_START_SPEED
+                jump_sound.play()
 
         else:
             # When player wants to play again by pressing SPACE
