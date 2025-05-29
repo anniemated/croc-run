@@ -109,7 +109,7 @@ def obstacle_movement(obstacle_list):
             if obstacles_rect.bottom == GROUND_Y:
                 screen.blit(cacti,obstacles_rect) 
             else:
-                screen.blit(fly_surf,obstacles_rect)
+                screen.blit(fly,obstacles_rect)
 
         obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100]
 
