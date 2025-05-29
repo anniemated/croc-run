@@ -2,6 +2,7 @@
 
 A game similar to the famous Chrome Dino Game, built using pygame-ce.
 Made by intern: Annie!!
+Hash: e7f59b4
 """
 
 import pygame
@@ -16,6 +17,7 @@ start_time = 0
 
 # Game state variables
 screen_type = 1 # 1: menu, 2: game, 3: game over
+menu_type = 1 # 1: menu, 2: how to play/controls, 3: level select
 GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
@@ -29,11 +31,9 @@ bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
 
 # Load level assets
-SKY_SURF = pygame.image.load("graphics/level/sky.png").convert()
-GROUND_SURF = pygame.image.load("graphics/level/ground.png").convert()
+SKY_SURF = pygame.image.load("graphics/level/sky1.png").convert()
+GROUND_SURF = pygame.image.load("graphics/level/ground1.png").convert()
 game_font = pygame.font.Font(pygame.font.get_default_font(), 50)
-score_surf = game_font.render("SCORE?", False, "Black")
-score_rect = score_surf.get_rect(center=(400, 50))
 
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
@@ -95,16 +95,19 @@ def display_score():
 def menu():
     screen.fill("white")
     screen.blit(game_name,game_name_rect)
-    
+
+def howtoplay():
+    screen.fill("black")
+
+def levels():
+    screen.fill("Black")
+
 def game():
     screen.fill("purple")  # Wipe the screen
 
     # Blit the level assets
     screen.blit(SKY_SURF, (0, 0))
     screen.blit(GROUND_SURF, (0, GROUND_Y))
-    pygame.draw.rect(screen, "#c0e8ec", score_rect)
-    pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
-    screen.blit(score_surf, score_rect)
     display_score()
 
 def game_over():
@@ -117,6 +120,23 @@ while running:
         # pygame.QUIT --> user clicked X to close your window
         if event.type == pygame.QUIT:
             running = False
+        
+        # Menu actions
+        if screen_type == 1:
+            if menu_type == 1:
+                menu()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                    menu_type = 2
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+                    menu_type = 3
+            elif menu_type == 2:
+                howtoplay()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                    menu_type = 1
+            elif menu_type == 3:
+                levels()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+                    menu_type = 1
 
         # Player movement
         if screen_type == 2:
@@ -144,12 +164,8 @@ while running:
                 obstacle_rect_list.append(fly_surf.get_rect(bottomleft = (randint(800,900),270)))
 
 # Different screens
-    # Menu screen
-    if screen_type == 1:
-        menu()
-
     # Game screen
-    elif screen_type == 2:
+    if screen_type == 2:
         game()
         # Adjust player's vertical location then blit it
         players_gravity_speed += 1
