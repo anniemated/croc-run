@@ -51,7 +51,11 @@ cacti_idle = [cacti_surf,cacti_surf_2]
 cacti_index = 0
 cacti = cacti_idle[cacti_index]
 
-fly_surf = pygame.image.load("graphics/fly_1.png").convert_alpha()
+fly_surf = pygame.image.load("graphics/fly/fly_1.png").convert_alpha()
+fly_surf_2 = pygame.image.load("graphics/fly/fly_2.png").convert_alpha()
+fly_idle = [fly_surf,fly_surf_2]
+fly_index = 0
+fly = fly_idle[fly_index]
 
 #river_surf = pygame.image.load("graphics/river.png").convert_alpha()
 
@@ -85,13 +89,17 @@ def player_animation():
             player_index = 0
         player = player_walk[int(player_index)]
 
-def cacti_animation():
-    # Cacti always idle
-    global cacti, cacti_index
+def obstacle_animation():
+    # Obstacles always idle
+    global cacti, cacti_index, fly, fly_index
     cacti_index += 0.1
+    fly_index += 0.1
     if cacti_index >= len(cacti_idle):
         cacti_index = 0
+    if fly_index >= len(fly_idle):
+        fly_index = 0
     cacti = cacti_idle[int(cacti_index)]
+    fly = fly_idle[int(fly_index)]
 
 def obstacle_movement(obstacle_list):
     if obstacle_list:
@@ -199,7 +207,7 @@ while running:
     if screen_type == 2:
         game()
         player_animation()
-        cacti_animation()
+        obstacle_animation()
         # Adjust player's vertical location then blit it
         players_gravity_speed += 1
         player_rect.y += players_gravity_speed
