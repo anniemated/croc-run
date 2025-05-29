@@ -37,12 +37,23 @@ game_font = pygame.font.Font(pygame.font.get_default_font(), 50)
 
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
+player_surf_2 = pygame.image.load("graphics/player/player_walk_2.png").convert_alpha()
+player_jump = pygame.image.load("graphics/player/player_jump.png").convert_alpha()
 player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
+player_walk = [player_surf,player_surf_2]
+player_index = 0
+player = player_walk[player_index]
 
 # Load obstacles
-egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
-egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
+cacti_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
+cacti_surf_2 = pygame.image.load("graphics/egg/egg_2.png").convert_alpha()
+cacti_idle = [cacti_surf,cacti_surf_2]
+cacti_index = 0
+cacti = cacti_idle[cacti_index]
+
 fly_surf = pygame.image.load("graphics/fly_1.png").convert_alpha()
+
+#river_surf = pygame.image.load("graphics/river.png").convert_alpha()
 
 obstacle_rect_list = []
 
@@ -62,13 +73,33 @@ game_over_rect = game_over_text.get_rect(center=(400,200))
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer,1600)
 
+def player_animation():
+    # Animated while walking
+    global player, player_index
+
+    if player_rect.bottom < GROUND_Y:
+        player = player_jump
+    else:
+        player_index += 0.1
+        if player_index >= len(player_walk):
+            player_index = 0
+        player = player_walk[int(player_index)]
+
+def cacti_animation():
+    # Cacti always idle
+    global cacti, cacti_index
+    cacti_index += 0.1
+    if cacti_index >= len(cacti_idle):
+        cacti_index = 0
+    cacti = cacti_idle[int(cacti_index)]
+
 def obstacle_movement(obstacle_list):
     if obstacle_list:
         for obstacles_rect in obstacle_list:
             obstacles_rect.x -= 5
             
             if obstacles_rect.bottom == GROUND_Y:
-                screen.blit(egg_surf,obstacles_rect)
+                screen.blit(cacti,obstacles_rect) 
             else:
                 screen.blit(fly_surf,obstacles_rect)
 
@@ -159,7 +190,7 @@ while running:
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
-                obstacle_rect_list.append(egg_surf.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+                obstacle_rect_list.append(cacti_surf.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
                 obstacle_rect_list.append(fly_surf.get_rect(bottomleft = (randint(800,900),270)))
 
@@ -167,12 +198,14 @@ while running:
     # Game screen
     if screen_type == 2:
         game()
+        player_animation()
+        cacti_animation()
         # Adjust player's vertical location then blit it
         players_gravity_speed += 1
         player_rect.y += players_gravity_speed
         if player_rect.bottom > GROUND_Y:
             player_rect.bottom = GROUND_Y
-        screen.blit(player_surf, player_rect)
+        screen.blit(player, player_rect)
 
         # When player collides with enemy, game over screen
         if collisions(player_rect, obstacle_rect_list) != True:
