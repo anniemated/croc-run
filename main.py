@@ -21,6 +21,7 @@ menu_type = 1 # 1: menu, 2: how to play/controls, 3: level select
 GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
+current_score = 0
 
 # Load sounds
 bg_music = pygame.mixer.Sound("audio/music.mp3")
@@ -31,8 +32,8 @@ bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
 
 # Load level assets
-SKY_SURF = pygame.image.load("graphics/level/sky1.png").convert()
-GROUND_SURF = pygame.image.load("graphics/level/ground1.png").convert()
+SKY_SURF = pygame.image.load("graphics/levels/sky1.png").convert()
+GROUND_SURF = pygame.image.load("graphics/levels/ground1.png").convert()
 game_font = pygame.font.Font(pygame.font.get_default_font(), 50)
 
 # Load sprite assets
@@ -45,14 +46,14 @@ player_index = 0
 player = player_walk[player_index]
 
 # Load obstacles
-cacti_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
-cacti_surf_2 = pygame.image.load("graphics/egg/egg_2.png").convert_alpha()
+cacti_surf = pygame.image.load("graphics/obstacles/egg/egg_1.png").convert_alpha()
+cacti_surf_2 = pygame.image.load("graphics/obstacles/egg/egg_2.png").convert_alpha()
 cacti_idle = [cacti_surf,cacti_surf_2]
 cacti_index = 0
 cacti = cacti_idle[cacti_index]
 
-fly_surf = pygame.image.load("graphics/fly/fly_1.png").convert_alpha()
-fly_surf_2 = pygame.image.load("graphics/fly/fly_2.png").convert_alpha()
+fly_surf = pygame.image.load("graphics/obstacles/fly/fly_1.png").convert_alpha()
+fly_surf_2 = pygame.image.load("graphics/obstacles/fly/fly_2.png").convert_alpha()
 fly_idle = [fly_surf,fly_surf_2]
 fly_index = 0
 fly = fly_idle[fly_index]
@@ -62,15 +63,19 @@ fly = fly_idle[fly_index]
 obstacle_rect_list = []
 
 # Load collectibles
-#fruit_surf =
-#fruit_rect = 
+orange_surf = pygame.image.load("graphics/collectibles/orange.png").convert_alpha()
+orange = pygame.transform.scale(orange_surf,(50,50))
+apple_surf = pygame.image.load("graphics/collectibles/apple.png").convert_alpha()
+apple = pygame.transform.scale(apple_surf,(50,50))
+
+collectible_rect_list = []
 
 # Load menu screen assets
-game_name = game_font.render("CROC RUN",False,"Black")
+game_name = game_font.render("CROC RUN\nPlay (SPACE)\nHow to play (H)\nLevels (L)",False,"Black")
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load game over screen assets
-game_over_text = game_font.render("Game Over...\nTry again?",False,"White")
+game_over_text = game_font.render("Game Over...\nTry again (SPACE)\nBack to menu (M)",False,"White")
 game_over_rect = game_over_text.get_rect(center=(400,200))
 
 #Timer
@@ -112,23 +117,47 @@ def obstacle_movement(obstacle_list):
                 screen.blit(fly,obstacles_rect)
 
         obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100]
-
         return obstacle_list
     else: return []
 
-def collisions(player,obstacles):
+def collectible_movement(collectible_list):
+    if collectible_list:
+        for collectibles_rect in collectible_list:
+            collectibles_rect.x -= 5
+            screen.blit(orange,collectibles_rect)
+            screen.blit(apple,collectibles_rect)
+            
+        collectible_list = [collectible for collectible in collectible_list if collectible.x > -100]
+        return collectible_list
+    else: return []
+
+def collisions(player,obstacles,collectibles):
+    global current_score
     if obstacles:
         for obstacles_rect in obstacles:
             if player.colliderect(obstacles_rect):
+                return False
+    if collectibles:
+        for collectibles_rect in collectibles:
+            if player.colliderect(collectibles_rect):
+                collectibles.remove(collectibles_rect)
+                current_score += 1
+                chomp_sound.play()
                 return False
     return True
 
 def display_score():
     current_time = pygame.time.get_ticks() - start_time
     current_time //= 1000
-    global score_surf, score_rect
-    score_surf = game_font.render(f"{current_time}", False, (64,64,64))
-    score_rect = score_surf.get_rect(center=(400,50))
+    global time_surf, time_rect, score_surf, score_rect
+    
+    time_surf = game_font.render(f"Time: {current_time}", False, (64,64,64))
+    time_rect = time_surf.get_rect(center=(400,50))
+
+    score_surf = game_font.render(f"Score: {current_score}", False, (64,65,64))
+    score_rect = score_surf.get_rect(center=(400,90))
+
+    screen.blit(time_surf,time_rect)
     screen.blit(score_surf,score_rect)
 
 def menu():
@@ -164,17 +193,17 @@ while running:
         if screen_type == 1:
             if menu_type == 1:
                 menu()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
                     menu_type = 2
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_l:
                     menu_type = 3
             elif menu_type == 2:
                 howtoplay()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                if event.type == pygame.KEYDOWN and (event.key == pygame.K_h or event.key == pygame.K_m):
                     menu_type = 1
             elif menu_type == 3:
                 levels()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_l:
+                if event.type == pygame.KEYDOWN and (event.key == pygame.K_l or event.key == pygame.K_m):
                     menu_type = 1
 
         # Player movement
@@ -194,13 +223,23 @@ while running:
                 screen_type = 2
                 start_time = int(pygame.time.get_ticks())
                 obstacle_rect_list = []
+                current_score = 0
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                screen_type = 1
+                start_time = int(pygame.time.get_ticks())
+                obstacle_rect_list = []
+                current_score = 0
 
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
-                obstacle_rect_list.append(cacti_surf.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+                obstacle_rect_list.append(cacti.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
-                obstacle_rect_list.append(fly_surf.get_rect(bottomleft = (randint(800,900),270)))
+                obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),270)))
+            
+            collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+            collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+            
 
 # Different screens
     # Game screen
@@ -215,12 +254,13 @@ while running:
             player_rect.bottom = GROUND_Y
         screen.blit(player, player_rect)
 
-        # When player collides with enemy, game over screen
-        if collisions(player_rect, obstacle_rect_list) != True:
+        # If player collides with obstacle, game over screen
+        if collisions(player_rect, obstacle_rect_list, collectible_rect_list) != True:
             screen_type = 3  # Switch to game over screen
         
-        #Obstacle movement
+        #Obstacle & collectible movement
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
+        collectible_rect_list = collectible_movement(collectible_rect_list)
         
     # Game over screen
     elif screen_type == 3:
