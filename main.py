@@ -22,6 +22,7 @@ GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
+lives = 3
 
 # Load sounds
 bg_music = pygame.mixer.Sound("audio/music.mp3")
@@ -77,6 +78,11 @@ game_name_rect = game_name.get_rect(center=(400,200))
 # Load game over screen assets
 game_over_text = game_font.render("Game Over...\nTry again (SPACE)\nBack to menu (M)",False,"White")
 game_over_rect = game_over_text.get_rect(center=(400,200))
+
+# Load icons
+heart_surf = pygame.image.load("graphics/icons/heart.png").convert_alpha()
+heart = pygame.transform.scale(heart_surf,(50,50))
+
 
 #Timer
 obstacle_timer = pygame.USEREVENT + 1
@@ -141,10 +147,11 @@ def collisions(player,obstacles):
     if obstacles:
         for obstacles_rect in obstacles:
             if player.colliderect(obstacles_rect):
+                obstacles.remove(obstacles_rect)
                 return False
     return True
 
-def collections(player, collectibles):
+def collections(player,collectibles):
     global current_score
     if collectibles:
         for collectibles_rect in collectibles:
@@ -156,7 +163,7 @@ def collections(player, collectibles):
 def display_score():
     current_time = pygame.time.get_ticks() - start_time
     current_time //= 1000
-    global time_surf, time_rect, score_surf, score_rect
+    global time_surf, time_rect, score_surf, score_rect, heart
     
     time_surf = game_font.render(f"Time: {current_time}", False, (64,64,64))
     time_rect = time_surf.get_rect(center=(400,50))
@@ -236,37 +243,47 @@ while running:
                 start_time = int(pygame.time.get_ticks())
                 obstacle_rect_list = []
                 current_score = 0
-
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
                 obstacle_rect_list.append(cacti.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
                 obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),280)))
-            
         
         if event.type == collectible_timer and screen_type == 2:
             if randint(0,2):
                 collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
                 collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),230)))
-            
 
-# Constant features
     if screen_type == 2:
         game()
         player_animation()
         obstacle_animation()
-        # Adjust player's vertical location then blit it
+
+        # Adjust player's vertical location then blits it
         players_gravity_speed += 1
         player_rect.y += players_gravity_speed
         if player_rect.bottom > GROUND_Y:
             player_rect.bottom = GROUND_Y
         screen.blit(player, player_rect)
 
-        # If player collides with obstacle, game over screen
+        # If player collides with obstacle, remove 1 life
         if collisions(player_rect, obstacle_rect_list) != True:
-            screen_type = 3  # Switch to game over screen
+            lives -= 1
+        
+        # Remove hearts on screen when lives are lost
+        if lives == 3:
+            screen.blit(heart,(600,20))
+            screen.blit(heart,(660,20))
+            screen.blit(heart,(720,20))
+        elif lives == 2:
+            screen.blit(heart,(660,20))
+            screen.blit(heart,(720,20))
+        elif lives == 1:
+            screen.blit(heart,(720,20))
+        elif lives == 0:
+            screen_type = 3   
 
         # If player collects collectible, add to score
         if collections(player_rect, collectible_rect_list) != True:
