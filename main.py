@@ -28,6 +28,7 @@ lives = 3
 bg_music = pygame.mixer.Sound("audio/music.mp3")
 jump_sound = pygame.mixer.Sound("audio/jump.wav")
 chomp_sound = pygame.mixer.Sound("audio/chomp1.wav")
+ow_sound = pygame.mixer.Sound("audio/ow.mp3")
 
 bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
@@ -72,11 +73,11 @@ apple = pygame.transform.scale(apple_surf,(50,50))
 collectible_rect_list = []
 
 # Load menu screen assets
-game_name = game_font.render("CROC RUN\nPlay (SPACE)\nHow to play (H)\nLevels (L)",False,"Black")
+game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load game over screen assets
-game_over_text = game_font.render("Game Over...\nTry again (SPACE)\nBack to menu (M)",False,"White")
+game_over_text = game_font.render("Game Over...\nTry again (ENTER)\nBack to menu (M)",False,"White")
 game_over_rect = game_over_text.get_rect(center=(400,200))
 
 # Load icons
@@ -232,13 +233,13 @@ while running:
                 jump_sound.play()
 
         else:
-            # When player wants to play again by pressing SPACE
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # When player wants to play again by pressing P
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 screen_type = 2
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 screen_type = 1
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
@@ -271,6 +272,7 @@ while running:
         # If player collides with obstacle, remove 1 life
         if collisions(player_rect, obstacle_rect_list) != True:
             lives -= 1
+            ow_sound.play()
         
         # Remove hearts on screen when lives are lost
         if lives == 3:
@@ -285,6 +287,7 @@ while running:
         elif lives == 0:
             screen_type = 3
             obstacle_rect_list = []
+            collectible_rect_list = []
 
         # If player collects collectible, add to score
         if collections(player_rect, collectible_rect_list) != True:
