@@ -82,6 +82,9 @@ game_over_rect = game_over_text.get_rect(center=(400,200))
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer,1600)
 
+collectible_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(collectible_timer,2000)
+
 def player_animation():
     # Animated while walking
     global player, player_index
@@ -124,25 +127,29 @@ def collectible_movement(collectible_list):
     if collectible_list:
         for collectibles_rect in collectible_list:
             collectibles_rect.x -= 5
-            screen.blit(orange,collectibles_rect)
-            screen.blit(apple,collectibles_rect)
+
+            if collectibles_rect.bottom == GROUND_Y:
+                screen.blit(orange,collectibles_rect)
+            else:
+                screen.blit(apple,collectibles_rect)
             
         collectible_list = [collectible for collectible in collectible_list if collectible.x > -100]
         return collectible_list
     else: return []
 
-def collisions(player,obstacles,collectibles):
-    global current_score
+def collisions(player,obstacles):
     if obstacles:
         for obstacles_rect in obstacles:
             if player.colliderect(obstacles_rect):
                 return False
+    return True
+
+def collections(player, collectibles):
+    global current_score
     if collectibles:
         for collectibles_rect in collectibles:
             if player.colliderect(collectibles_rect):
                 collectibles.remove(collectibles_rect)
-                current_score += 1
-                chomp_sound.play()
                 return False
     return True
 
@@ -235,14 +242,17 @@ while running:
             if randint(0,2):
                 obstacle_rect_list.append(cacti.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
-                obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),270)))
+                obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),280)))
             
-            collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
-            collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+        
+        if event.type == collectible_timer and screen_type == 2:
+            if randint(0,2):
+                collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+            else:
+                collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),230)))
             
 
-# Different screens
-    # Game screen
+# Constant features
     if screen_type == 2:
         game()
         player_animation()
@@ -255,8 +265,13 @@ while running:
         screen.blit(player, player_rect)
 
         # If player collides with obstacle, game over screen
-        if collisions(player_rect, obstacle_rect_list, collectible_rect_list) != True:
+        if collisions(player_rect, obstacle_rect_list) != True:
             screen_type = 3  # Switch to game over screen
+
+        # If player collects collectible, add to score
+        if collections(player_rect, collectible_rect_list) != True:
+            current_score += 1
+            chomp_sound.play()
         
         #Obstacle & collectible movement
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
