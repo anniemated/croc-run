@@ -236,13 +236,13 @@ while running:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 screen_type = 2
                 start_time = int(pygame.time.get_ticks())
-                obstacle_rect_list = []
                 current_score = 0
+                lives = 3
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                 screen_type = 1
                 start_time = int(pygame.time.get_ticks())
-                obstacle_rect_list = []
                 current_score = 0
+                lives = 3
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
@@ -283,7 +283,8 @@ while running:
         elif lives == 1:
             screen.blit(heart,(720,20))
         elif lives == 0:
-            screen_type = 3   
+            screen_type = 3
+            obstacle_rect_list = []
 
         # If player collects collectible, add to score
         if collections(player_rect, collectible_rect_list) != True:
