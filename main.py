@@ -292,10 +292,7 @@ while running:
             screen_type = 3
             obstacle_rect_list = []
             collectible_rect_list = []
-            print(current_score)
-            print(high_score)
             if current_score > high_score:
-                print("I'm changing the score")
                 high_score = current_score
 
         # If player collects collectible, add to score
