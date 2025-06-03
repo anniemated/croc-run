@@ -22,6 +22,7 @@ GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
+high_score = 0
 lives = 3
 
 # Load sounds
@@ -36,7 +37,7 @@ bg_music.play(loops = -1)
 # Load level assets
 SKY_SURF = pygame.image.load("graphics/levels/sky1.png").convert()
 GROUND_SURF = pygame.image.load("graphics/levels/ground1.png").convert()
-game_font = pygame.font.Font(pygame.font.get_default_font(), 50)
+game_font = pygame.font.Font(pygame.font.get_default_font(), 45)
 
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
@@ -78,12 +79,13 @@ game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load game over screen assets
 game_over_text = game_font.render("Game Over...\nTry again (ENTER)\nBack to menu (M)",False,"White")
-game_over_rect = game_over_text.get_rect(center=(400,200))
+game_over_rect = game_over_text.get_rect(center=(550,200))
+leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
+leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
 
 # Load icons
 heart_surf = pygame.image.load("graphics/icons/heart.png").convert_alpha()
 heart = pygame.transform.scale(heart_surf,(50,50))
-
 
 #Timer
 obstacle_timer = pygame.USEREVENT + 1
@@ -196,6 +198,8 @@ def game():
 def game_over():
     screen.fill("black")
     screen.blit(game_over_text, game_over_rect)
+    leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
+    screen.blit(leaderboard_text, leaderboard_rect)
 
 while running:
 # Player actions
@@ -288,6 +292,11 @@ while running:
             screen_type = 3
             obstacle_rect_list = []
             collectible_rect_list = []
+            print(current_score)
+            print(high_score)
+            if current_score > high_score:
+                print("I'm changing the score")
+                high_score = current_score
 
         # If player collects collectible, add to score
         if collections(player_rect, collectible_rect_list) != True:
