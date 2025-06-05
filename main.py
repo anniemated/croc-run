@@ -74,10 +74,10 @@ apple = pygame.transform.scale(apple_surf,(50,50))
 guava_surf = pygame.image.load("graphics/collectibles/guava.png").convert_alpha()
 guava = pygame.transform.scale(guava_surf,(50,50))
 pineapple_surf = pygame.image.load("graphics/collectibles/pineapple.png").convert_alpha()
-pineapple = pygame.transform.scale(pineapple_surf,(50,50))
+pineapple = pygame.transform.scale(pineapple_surf,(80,80))
 
 collectible_rect_list = []
-power_up_rect_list = []
+powerup_rect_list = []
 
 # Load menu screen assets
 game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
@@ -101,7 +101,7 @@ collectible_timer = pygame.USEREVENT + 2
 pygame.time.set_timer(collectible_timer,2000)
 
 powerup_timer = pygame.USEREVENT + 3
-pygame.time.set_timer(collectible_timer,4000)
+pygame.time.set_timer(powerup_timer,8000)
 
 def player_animation():
     # Animated while walking
@@ -174,13 +174,13 @@ def collections(player,collectibles):
 
 def powerup_movement(powerup_list):
     if powerup_list:
-        for powerup_rect in powerup_list:
-            powerup_rect.x -= 5
+        for powerups_rect in powerup_list:
+            powerups_rect.x -= 5
 
-            if powerup_rect.bottom == GROUND_Y:
-                screen.blit(pineapple,powerup_rect)
+            if powerups_rect.bottom == GROUND_Y:
+                screen.blit(pineapple,powerups_rect)
             else:
-                screen.blit(guava,powerup_rect)
+                screen.blit(guava,powerups_rect)
             
         powerup_list = [powerup for powerup in powerup_list if powerup.x > -100]
         return powerup_list
@@ -294,9 +294,9 @@ while running:
         
         if event.type == powerup_timer and screen_type == 2:
             if randint(0,2):
-                collectible_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(400,1400),GROUND_Y)))
             else:
-                collectible_rect_list.append(guava.get_rect(bottomleft = (randint(800,900),301)))
+                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(400,1400),301)))
 
 
     if screen_type == 2:
@@ -330,6 +330,7 @@ while running:
             screen_type = 3
             obstacle_rect_list = []
             collectible_rect_list = []
+            powerup_rect_list = []
             if current_score > high_score:
                 high_score = current_score
 
@@ -339,12 +340,13 @@ while running:
             chomp_sound.play()
 
         # If player collides with powerup, add powerup condition
-        if get_powerup(player_rect, power_up_rect_list) != True:
+        if get_powerup(player_rect, powerup_rect_list) != True:
             chomp_sound.play()
         
         #Obstacle & collectible movement
-        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
         collectible_rect_list = collectible_movement(collectible_rect_list)
+        powerup_rect_list = powerup_movement(powerup_rect_list)
+        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
         
     # Game over screen
     elif screen_type == 3:
