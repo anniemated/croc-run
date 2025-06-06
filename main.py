@@ -25,11 +25,22 @@ current_score = 0
 high_score = 0
 lives = 3
 
+# Pineapple variables
+pineapple_active = False
+pineapple_start = 0
+pineapple_elapsed = pygame.time.get_ticks() - pineapple_start
+
+# Guava variables
+guava_active = False
+guava_start = 0
+guava_elapsed = pygame.time.get_ticks() - guava_start
+
 # Load sounds
 bg_music = pygame.mixer.Sound("audio/music.mp3")
 jump_sound = pygame.mixer.Sound("audio/jump.wav")
 chomp_sound = pygame.mixer.Sound("audio/chomp1.wav")
 ow_sound = pygame.mixer.Sound("audio/ow.mp3")
+sparkle_sound = pygame.mixer.Sound("audio/powerup.wav")
 
 bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
@@ -65,13 +76,19 @@ fly = fly_idle[fly_index]
 
 obstacle_rect_list = []
 
-# Load collectibles
+# Load collectibles/powerups
 orange_surf = pygame.image.load("graphics/collectibles/orange.png").convert_alpha()
 orange = pygame.transform.scale(orange_surf,(50,50))
 apple_surf = pygame.image.load("graphics/collectibles/apple.png").convert_alpha()
 apple = pygame.transform.scale(apple_surf,(50,50))
 
+guava_surf = pygame.image.load("graphics/collectibles/guava.png").convert_alpha()
+guava = pygame.transform.scale(guava_surf,(50,50))
+pineapple_surf = pygame.image.load("graphics/collectibles/pineapple.png").convert_alpha()
+pineapple = pygame.transform.scale(pineapple_surf,(80,80))
+
 collectible_rect_list = []
+powerup_rect_list = []
 
 # Load menu screen assets
 game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
@@ -83,6 +100,11 @@ game_over_rect = game_over_text.get_rect(center=(550,200))
 leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
 leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
 
+# Load powerup text assets
+pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
+pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
+guava_text = game_font.render("+1 life", False, "Black")
+
 # Load icons
 heart_surf = pygame.image.load("graphics/icons/heart.png").convert_alpha()
 heart = pygame.transform.scale(heart_surf,(50,50))
@@ -93,6 +115,11 @@ pygame.time.set_timer(obstacle_timer,1600)
 
 collectible_timer = pygame.USEREVENT + 2
 pygame.time.set_timer(collectible_timer,2000)
+
+powerup_timer = pygame.USEREVENT + 3
+pygame.time.set_timer(powerup_timer,8000)
+
+effect_timer = pygame.USEREVENT + 4
 
 def player_animation():
     # Animated while walking
@@ -160,6 +187,29 @@ def collections(player,collectibles):
         for collectibles_rect in collectibles:
             if player.colliderect(collectibles_rect):
                 collectibles.remove(collectibles_rect)
+                return False
+    return True
+
+def powerup_movement(powerup_list):
+    global powerups_rect
+    if powerup_list:
+        for powerups_rect in powerup_list:
+            powerups_rect.x -= 5
+
+            if powerups_rect.bottom == GROUND_Y:
+                screen.blit(pineapple,powerups_rect)
+            else:
+                screen.blit(guava,powerups_rect)
+            
+        powerup_list = [powerup for powerup in powerup_list if powerup.x > -100]
+        return powerup_list
+    else: return []
+
+def get_powerup(player,powerups):
+    if powerups:
+        for powerup_rect in powerups:
+            if player.colliderect(powerup_rect):
+                powerups.remove(powerup_rect)
                 return False
     return True
 
@@ -237,17 +287,23 @@ while running:
                 jump_sound.play()
 
         else:
-            # When player wants to play again by pressing P
+            # When player wants to play again by pressing ENTER
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 screen_type = 2
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                JUMP_GRAVITY_START_SPEED = -20
+                pineapple_active = False
+                guava_active = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                 screen_type = 1
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
+                JUMP_GRAVITY_START_SPEED = -20
+                pineapple_active = False
+                guava_active = False
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
@@ -260,6 +316,13 @@ while running:
                 collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
             else:
                 collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),230)))
+        
+        if event.type == powerup_timer and screen_type == 2:
+            if randint(0,2):
+                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),GROUND_Y)))
+            else:
+                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),301)))
+
 
     if screen_type == 2:
         game()
@@ -292,6 +355,7 @@ while running:
             screen_type = 3
             obstacle_rect_list = []
             collectible_rect_list = []
+            powerup_rect_list = []
             if current_score > high_score:
                 high_score = current_score
 
@@ -299,10 +363,47 @@ while running:
         if collections(player_rect, collectible_rect_list) != True:
             current_score += 1
             chomp_sound.play()
+
+        # If player collides with powerup, add powerup condition
+        if get_powerup(player_rect, powerup_rect_list) != True:
+            sparkle_sound.play()
+            if powerups_rect.bottom == GROUND_Y:
+                pineapple_active = True
+                pineapple_start = pygame.time.get_ticks()
+                pineapple_left = max(0, 5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
+                JUMP_GRAVITY_START_SPEED = -22.5
+            elif powerups_rect.bottom != GROUND_Y and lives < 3:
+                lives += 1
+                guava_active = True
+                guava_start = pygame.time.get_ticks()
+                
+        # Make pineapple condition stop after 10 seconds
+        if pineapple_active == True:
+            pineapple_elapsed = pygame.time.get_ticks() - pineapple_start
+            pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
+
+        # Blit pineapple timer text
+            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
+            screen.blit(pineapple_text, (22, 20))
         
+        # Check if expired
+        if pineapple_elapsed > 5000:
+            pineapple_active = False
+            JUMP_GRAVITY_START_SPEED = -20
+
+        # Make guava text blit
+        if guava_active == True:
+            guava_elapsed = pygame.time.get_ticks() - guava_start
+            screen.blit(guava_text, (22,20))
+
+        # Stop it from blitting after 1 seconds
+        if guava_elapsed > 1000:
+            guava_active = False
+
         #Obstacle & collectible movement
-        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
         collectible_rect_list = collectible_movement(collectible_rect_list)
+        powerup_rect_list = powerup_movement(powerup_rect_list)
+        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
         
     # Game over screen
     elif screen_type == 3:
