@@ -46,9 +46,14 @@ bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
 
 # Load level assets
-SKY_SURF = pygame.image.load("graphics/levels/sky1.png").convert()
-GROUND_SURF = pygame.image.load("graphics/levels/ground1.png").convert()
+SKY_SURF1 = pygame.image.load("graphics/levels/sky1.png").convert()
+GROUND_SURF1 = pygame.image.load("graphics/levels/ground1.png").convert()
+SKY_SURF2 = pygame.image.load("graphics/levels/sky2.png").convert()
+GROUND_SURF2 = pygame.image.load("graphics/levels/ground2.png").convert()
 game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 45)
+
+SKY_SURF = SKY_SURF1
+GROUND_SURF = GROUND_SURF1
 
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
@@ -93,6 +98,10 @@ powerup_rect_list = []
 # Load menu screen assets
 game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,(64,64,64))
 game_name_rect = game_name.get_rect(center=(400,200))
+
+# Load levels screen assets
+levels_text = game_font.render("Levels\nDAY: Press 1\nSUNSET: Press 2\nMENU: Press M",False,(64,64,64))
+levels_rect = levels_text.get_rect(center=(400,180))
 
 # Load game over screen assets
 game_over_text = game_font.render("Game Over...\nTry again (ENTER)\nBack to menu (M)",False,"White")
@@ -235,7 +244,9 @@ def howtoplay():
     screen.fill("black")
 
 def levels():
-    screen.fill("Black")
+    screen.blit(SKY_SURF, (0, 0))
+    screen.blit(GROUND_SURF, (0, GROUND_Y))
+    screen.blit(levels_text,levels_rect)
 
 def game():
     screen.fill("purple")  # Wipe the screen
@@ -274,6 +285,12 @@ while running:
                 levels()
                 if event.type == pygame.KEYDOWN and (event.key == pygame.K_l or event.key == pygame.K_m):
                     menu_type = 1
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+                    SKY_SURF = SKY_SURF1
+                    GROUND_SURF = GROUND_SURF1
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+                    SKY_SURF = SKY_SURF2
+                    GROUND_SURF = GROUND_SURF2
 
         # Player movement
         if screen_type == 2:
