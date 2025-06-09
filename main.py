@@ -35,12 +35,20 @@ guava_active = False
 guava_start = 0
 guava_elapsed = pygame.time.get_ticks() - guava_start
 
+# Durian variables
+
+# Rainbow variables
+rainbow_active = False
+rainbow_start = 0
+rainbow_elapsed = pygame.time.get_ticks() - rainbow_start
+
 # Load sounds
 bg_music = pygame.mixer.Sound("audio/music.mp3")
 jump_sound = pygame.mixer.Sound("audio/jump.wav")
 chomp_sound = pygame.mixer.Sound("audio/chomp1.wav")
 ow_sound = pygame.mixer.Sound("audio/ow.mp3")
 sparkle_sound = pygame.mixer.Sound("audio/powerup.wav")
+rainbow_sound = pygame.mixer.Sound("audio/rainbow.mp3")
 
 bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
@@ -94,8 +102,12 @@ guava = pygame.transform.scale(guava_surf,(50,50))
 pineapple_surf = pygame.image.load("graphics/collectibles/pineapple.png").convert_alpha()
 pineapple = pygame.transform.scale(pineapple_surf,(80,80))
 
+rainbow_surf = pygame.image.load("graphics/collectibles/rainbow.png").convert_alpha()
+rainbow = pygame.transform.scale(rainbow_surf,(50,50))
+
 collectible_rect_list = []
 powerup_rect_list = []
+rainbow_rect_list = []
 
 # Load menu screen assets
 game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
@@ -115,6 +127,8 @@ leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
 pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
 pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
 guava_text = game_font.render("+1 life", False, "Black")
+rainbow_left = (5000 - (pygame.time.get_ticks() - rainbow_start)) // 1000
+rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "Black")
 
 # Load icons
 heart_surf = pygame.image.load("graphics/texticons/heart.png").convert_alpha()
@@ -128,9 +142,10 @@ collectible_timer = pygame.USEREVENT + 2
 pygame.time.set_timer(collectible_timer,2000)
 
 powerup_timer = pygame.USEREVENT + 3
-pygame.time.set_timer(powerup_timer,8000)
+pygame.time.set_timer(powerup_timer,9000)
 
-effect_timer = pygame.USEREVENT + 4
+rainbow_timer = pygame.USEREVENT + 4
+pygame.time.set_timer(rainbow_timer,20000)
 
 def player_animation():
     # Animated while walking
@@ -221,6 +236,26 @@ def get_powerup(player,powerups):
         for powerup_rect in powerups:
             if player.colliderect(powerup_rect):
                 powerups.remove(powerup_rect)
+                return False
+    return True
+
+def rainbow_movement(rainbow_list):
+    global rainbows_rect
+    if rainbow_list:
+        for rainbows_rect in rainbow_list:
+            rainbows_rect.x -= 5
+
+            screen.blit(rainbow,rainbows_rect)
+            
+        rainbow_list = [rainbow for rainbow in rainbow_list if rainbow.x > -100]
+        return rainbow_list
+    else: return []
+
+def get_rainbow(player,rainbows):
+    if rainbows:
+        for rainbow_rect in rainbows:
+            if player.colliderect(rainbow_rect):
+                rainbows.remove(rainbow_rect)
                 return False
     return True
 
@@ -345,6 +380,9 @@ while running:
             else:
                 powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),301)))
 
+        if event.type == rainbow_timer and screen_type == 2:
+            rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),GROUND_Y)))
+
 
     if screen_type == 2:
         game()
@@ -359,9 +397,10 @@ while running:
         screen.blit(player, player_rect)
 
         # If player collides with obstacle, remove 1 life
-        if collisions(player_rect, obstacle_rect_list) != True:
-            lives -= 1
-            ow_sound.play()
+        if rainbow_active == False:
+            if collisions(player_rect, obstacle_rect_list) != True:
+                lives -= 1
+                ow_sound.play()
         
         # Remove hearts on screen when lives are lost
         if lives == 3:
@@ -406,7 +445,8 @@ while running:
 
         # Blit pineapple timer text
             pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
-            screen.blit(pineapple_text, (22, 20))
+            if rainbow_active == False:
+                screen.blit(pineapple_text, (22, 20))
         
         # Check if expired
         if pineapple_elapsed > 5000:
@@ -416,16 +456,38 @@ while running:
         # Make guava text blit
         if guava_active == True:
             guava_elapsed = pygame.time.get_ticks() - guava_start
+        if rainbow_active == False:
             screen.blit(guava_text, (22,20))
 
         # Stop it from blitting after 1 seconds
         if guava_elapsed > 1000:
             guava_active = False
 
+        # If player collides with rainbow fruit, invincibility
+        if get_rainbow(player_rect, rainbow_rect_list) != True:
+            rainbow_sound.play()
+            rainbow_active = True
+            rainbow_start = pygame.time.get_ticks()
+            rainbow_left = max(0, 5000 - (pygame.time.get_ticks() - rainbow_start)) // 1000
+
+        # Make invincible condition stop after 10 seconds
+        if rainbow_active == True:
+            rainbow_elapsed = pygame.time.get_ticks() - rainbow_start
+            rainbow_left = max(0, 5000 - rainbow_elapsed) // 1000
+
+        # Blit rainbow timer text
+            rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "Black")
+            screen.blit(rainbow_text, (22, 20))
+        
+        # Check if expired
+        if rainbow_elapsed > 5000:
+            rainbow_active = False
+        
         #Obstacle & collectible movement
         collectible_rect_list = collectible_movement(collectible_rect_list)
         powerup_rect_list = powerup_movement(powerup_rect_list)
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
+        rainbow_rect_list = rainbow_movement(rainbow_rect_list)
         
     # Game over screen
     elif screen_type == 3:
