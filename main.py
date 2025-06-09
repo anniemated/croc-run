@@ -48,7 +48,7 @@ bg_music.play(loops = -1)
 # Load level assets
 SKY_SURF = pygame.image.load("graphics/levels/sky1.png").convert()
 GROUND_SURF = pygame.image.load("graphics/levels/ground1.png").convert()
-game_font = pygame.font.Font(pygame.font.get_default_font(), 45)
+game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 45)
 
 # Load sprite assets
 player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
@@ -91,7 +91,7 @@ collectible_rect_list = []
 powerup_rect_list = []
 
 # Load menu screen assets
-game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
+game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,(64,64,64))
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load game over screen assets
@@ -102,11 +102,11 @@ leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
 
 # Load powerup text assets
 pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
-pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
-guava_text = game_font.render("+1 life", False, "Black")
+pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, (64,64,64))
+guava_text = game_font.render("+1 life", False, (64,64,64))
 
 # Load icons
-heart_surf = pygame.image.load("graphics/icons/heart.png").convert_alpha()
+heart_surf = pygame.image.load("graphics/texticons/heart.png").convert_alpha()
 heart = pygame.transform.scale(heart_surf,(50,50))
 
 #Timer
@@ -221,7 +221,7 @@ def display_score():
     time_surf = game_font.render(f"Time: {current_time}", False, (64,64,64))
     time_rect = time_surf.get_rect(center=(400,50))
 
-    score_surf = game_font.render(f"Score: {current_score}", False, (64,65,64))
+    score_surf = game_font.render(f"Score: {current_score}", False, (64,64,64))
     score_rect = score_surf.get_rect(center=(400,90))
 
     screen.blit(time_surf,time_rect)
@@ -383,7 +383,7 @@ while running:
             pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
 
         # Blit pineapple timer text
-            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
+            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, (64,64,64))
             screen.blit(pineapple_text, (22, 20))
         
         # Check if expired
