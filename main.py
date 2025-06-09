@@ -50,6 +50,8 @@ SKY_SURF1 = pygame.image.load("graphics/levels/sky1.png").convert()
 GROUND_SURF1 = pygame.image.load("graphics/levels/ground1.png").convert()
 SKY_SURF2 = pygame.image.load("graphics/levels/sky2.png").convert()
 GROUND_SURF2 = pygame.image.load("graphics/levels/ground2.png").convert()
+SKY_SURF3 = pygame.image.load("graphics/levels/sky3.png").convert()
+GROUND_SURF3 = pygame.image.load("graphics/levels/ground3.png").convert()
 game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 45)
 
 SKY_SURF = SKY_SURF1
@@ -96,11 +98,11 @@ collectible_rect_list = []
 powerup_rect_list = []
 
 # Load menu screen assets
-game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,(64,64,64))
+game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load levels screen assets
-levels_text = game_font.render("Levels\nDAY: Press 1\nSUNSET: Press 2\nMENU: Press M",False,(64,64,64))
+levels_text = game_font.render("Levels\nDAY: Press 1\nSUNSET: Press 2\nNIGHT: Press 3\nMENU: Press M",False,"Black")
 levels_rect = levels_text.get_rect(center=(400,180))
 
 # Load game over screen assets
@@ -111,8 +113,8 @@ leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
 
 # Load powerup text assets
 pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
-pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, (64,64,64))
-guava_text = game_font.render("+1 life", False, (64,64,64))
+pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
+guava_text = game_font.render("+1 life", False, "Black")
 
 # Load icons
 heart_surf = pygame.image.load("graphics/texticons/heart.png").convert_alpha()
@@ -227,10 +229,10 @@ def display_score():
     current_time //= 1000
     global time_surf, time_rect, score_surf, score_rect, heart
     
-    time_surf = game_font.render(f"Time: {current_time}", False, (64,64,64))
+    time_surf = game_font.render(f"Time: {current_time}", False, "Black")
     time_rect = time_surf.get_rect(center=(400,50))
 
-    score_surf = game_font.render(f"Score: {current_score}", False, (64,64,64))
+    score_surf = game_font.render(f"Score: {current_score}", False, "Black")
     score_rect = score_surf.get_rect(center=(400,90))
 
     screen.blit(time_surf,time_rect)
@@ -291,6 +293,9 @@ while running:
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                     SKY_SURF = SKY_SURF2
                     GROUND_SURF = GROUND_SURF2
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+                    SKY_SURF = SKY_SURF3
+                    GROUND_SURF = GROUND_SURF3
 
         # Player movement
         if screen_type == 2:
@@ -400,7 +405,7 @@ while running:
             pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
 
         # Blit pineapple timer text
-            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, (64,64,64))
+            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
             screen.blit(pineapple_text, (22, 20))
         
         # Check if expired
