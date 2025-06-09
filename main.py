@@ -454,9 +454,8 @@ while running:
             JUMP_GRAVITY_START_SPEED = -20
 
         # Make guava text blit
-        if guava_active == True:
+        if guava_active == True and rainbow_active == False:
             guava_elapsed = pygame.time.get_ticks() - guava_start
-        if rainbow_active == False:
             screen.blit(guava_text, (22,20))
 
         # Stop it from blitting after 1 seconds
