@@ -24,6 +24,7 @@ players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
 high_score = 0
 lives = 3
+object_speed = 5
 
 # Pineapple variables
 pineapple_active = False
@@ -147,6 +148,9 @@ pygame.time.set_timer(powerup_timer,9000)
 rainbow_timer = pygame.USEREVENT + 4
 pygame.time.set_timer(rainbow_timer,20000)
 
+speed_timer = pygame.USEREVENT + 5
+pygame.time.set_timer(speed_timer,1)
+
 def player_animation():
     # Animated while walking
     global player, player_index
@@ -174,7 +178,7 @@ def obstacle_animation():
 def obstacle_movement(obstacle_list):
     if obstacle_list:
         for obstacles_rect in obstacle_list:
-            obstacles_rect.x -= 5
+            obstacles_rect.x -= object_speed
             
             if obstacles_rect.bottom == GROUND_Y:
                 screen.blit(cacti,obstacles_rect) 
@@ -188,7 +192,7 @@ def obstacle_movement(obstacle_list):
 def collectible_movement(collectible_list):
     if collectible_list:
         for collectibles_rect in collectible_list:
-            collectibles_rect.x -= 5
+            collectibles_rect.x -= object_speed
 
             if collectibles_rect.bottom == GROUND_Y:
                 screen.blit(orange,collectibles_rect)
@@ -220,7 +224,7 @@ def powerup_movement(powerup_list):
     global powerups_rect
     if powerup_list:
         for powerups_rect in powerup_list:
-            powerups_rect.x -= 5
+            powerups_rect.x -= object_speed
 
             if powerups_rect.bottom == GROUND_Y:
                 screen.blit(pineapple,powerups_rect)
@@ -243,7 +247,7 @@ def rainbow_movement(rainbow_list):
     global rainbows_rect
     if rainbow_list:
         for rainbows_rect in rainbow_list:
-            rainbows_rect.x -= 5
+            rainbows_rect.x -= object_speed
 
             screen.blit(rainbow,rainbows_rect)
             
@@ -258,11 +262,16 @@ def get_rainbow(player,rainbows):
                 rainbows.remove(rainbow_rect)
                 return False
     return True
-
+ 
 def display_score():
+    global object_speed
     current_time = pygame.time.get_ticks() - start_time
     current_time //= 1000
     global time_surf, time_rect, score_surf, score_rect, heart
+
+    # Object speed
+    for second in range(current_time):
+        object_speed += 0.00005
     
     time_surf = game_font.render(f"Time: {current_time}", False, "Black")
     time_rect = time_surf.get_rect(center=(400,50))
@@ -305,7 +314,7 @@ while running:
         # pygame.QUIT --> user clicked X to close your window
         if event.type == pygame.QUIT:
             running = False
-        
+
         # Menu actions
         if screen_type == 1:
             if menu_type == 1:
@@ -442,7 +451,6 @@ while running:
         if pineapple_active == True:
             pineapple_elapsed = pygame.time.get_ticks() - pineapple_start
             pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
-
         # Blit pineapple timer text
             pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
             if rainbow_active == False:
@@ -473,7 +481,6 @@ while running:
         if rainbow_active == True:
             rainbow_elapsed = pygame.time.get_ticks() - rainbow_start
             rainbow_left = max(0, 5000 - rainbow_elapsed) // 1000
-
         # Blit rainbow timer text
             rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "Black")
             screen.blit(rainbow_text, (22, 20))
