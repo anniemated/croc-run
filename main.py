@@ -19,7 +19,7 @@ start_time = 0
 screen_type = 1 # 1: menu, 2: game, 3: game over
 menu_type = 1 # 1: menu, 2: how to play/controls, 3: level select
 GROUND_Y = 300  # The Y-coordinate of the ground level
-JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
+JUMP_GRAVITY_START_SPEED = -22.5  # The speed at which the player jumps
 players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
 high_score = 0
@@ -67,9 +67,12 @@ SKY_SURF = SKY_SURF1
 GROUND_SURF = GROUND_SURF1
 
 # Load sprite assets
-player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
-player_surf_2 = pygame.image.load("graphics/player/player_walk_2.png").convert_alpha()
-player_jump = pygame.image.load("graphics/player/player_jump.png").convert_alpha()
+playersurf = pygame.image.load("graphics/player/croc1.png").convert_alpha()
+playersurf2 = pygame.image.load("graphics/player/croc2.png").convert_alpha()
+player_surf = pygame.transform.scale(playersurf,(125,41))
+player_surf_2 = pygame.transform.scale(playersurf2,(125,41))
+playerjump = pygame.image.load("graphics/player/croc3.png").convert_alpha()
+player_jump = pygame.transform.scale(playersurf2,(125,41))
 player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
 player_walk = [player_surf,player_surf_2]
 player_index = 0
@@ -93,18 +96,18 @@ fly = fly_idle[fly_index]
 obstacle_rect_list = []
 
 # Load collectibles/powerups
-orange_surf = pygame.image.load("graphics/collectibles/orange.png").convert_alpha()
-orange = pygame.transform.scale(orange_surf,(50,50))
-apple_surf = pygame.image.load("graphics/collectibles/apple.png").convert_alpha()
-apple = pygame.transform.scale(apple_surf,(50,50))
+orange_surf = pygame.image.load("graphics/collectibles/dragonfruit.png").convert_alpha()
+orange = pygame.transform.scale(orange_surf,(100,100))
+apple_surf = pygame.image.load("graphics/collectibles/lychee.png").convert_alpha()
+apple = pygame.transform.scale(apple_surf,(100,90))
 
 guava_surf = pygame.image.load("graphics/collectibles/guava.png").convert_alpha()
-guava = pygame.transform.scale(guava_surf,(50,50))
+guava = pygame.transform.scale(guava_surf,(100,100))
 pineapple_surf = pygame.image.load("graphics/collectibles/pineapple.png").convert_alpha()
-pineapple = pygame.transform.scale(pineapple_surf,(80,80))
+pineapple = pygame.transform.scale(pineapple_surf,(100,100))
 
-rainbow_surf = pygame.image.load("graphics/collectibles/rainbow.png").convert_alpha()
-rainbow = pygame.transform.scale(rainbow_surf,(50,50))
+rainbow_surf = pygame.image.load("graphics/collectibles/mango.png").convert_alpha()
+rainbow = pygame.transform.scale(rainbow_surf,(100,100))
 
 collectible_rect_list = []
 powerup_rect_list = []
@@ -359,7 +362,7 @@ while running:
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
-                JUMP_GRAVITY_START_SPEED = -20
+                JUMP_GRAVITY_START_SPEED = -22.5
                 pineapple_active = False
                 guava_active = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
@@ -367,7 +370,7 @@ while running:
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
-                JUMP_GRAVITY_START_SPEED = -20
+                JUMP_GRAVITY_START_SPEED = -22.5
                 pineapple_active = False
                 guava_active = False
         
@@ -441,7 +444,7 @@ while running:
                 pineapple_active = True
                 pineapple_start = pygame.time.get_ticks()
                 pineapple_left = max(0, 5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
-                JUMP_GRAVITY_START_SPEED = -22.5
+                JUMP_GRAVITY_START_SPEED = -25
             elif powerups_rect.bottom != GROUND_Y and lives < 3:
                 lives += 1
                 guava_active = True
@@ -459,7 +462,7 @@ while running:
         # Check if expired
         if pineapple_elapsed > 5000:
             pineapple_active = False
-            JUMP_GRAVITY_START_SPEED = -20
+            JUMP_GRAVITY_START_SPEED = -22.5
 
         # Make guava text blit
         if guava_active == True and rainbow_active == False:
