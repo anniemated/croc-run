@@ -197,7 +197,7 @@ def collectible_movement(collectible_list):
         for collectibles_rect in collectible_list:
             collectibles_rect.x -= object_speed
 
-            if collectibles_rect.bottom == GROUND_Y:
+            if collectibles_rect.bottom == 310:
                 screen.blit(orange,collectibles_rect)
             else:
                 screen.blit(apple,collectibles_rect)
@@ -229,7 +229,7 @@ def powerup_movement(powerup_list):
         for powerups_rect in powerup_list:
             powerups_rect.x -= object_speed
 
-            if powerups_rect.bottom == GROUND_Y:
+            if powerups_rect.bottom == 310:
                 screen.blit(pineapple,powerups_rect)
             else:
                 screen.blit(guava,powerups_rect)
@@ -382,18 +382,18 @@ while running:
         
         if event.type == collectible_timer and screen_type == 2:
             if randint(0,2):
-                collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+                collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),310)))
             else:
                 collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),230)))
         
         if event.type == powerup_timer and screen_type == 2:
             if randint(0,2):
-                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),GROUND_Y)))
+                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),310)))
             else:
                 powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),301)))
 
         if event.type == rainbow_timer and screen_type == 2:
-            rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),GROUND_Y)))
+            rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),310)))
 
 
     if screen_type == 2:
@@ -440,12 +440,12 @@ while running:
         # If player collides with powerup, add powerup condition
         if get_powerup(player_rect, powerup_rect_list) != True:
             sparkle_sound.play()
-            if powerups_rect.bottom == GROUND_Y:
+            if powerups_rect.bottom == 310:
                 pineapple_active = True
                 pineapple_start = pygame.time.get_ticks()
                 pineapple_left = max(0, 5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
                 JUMP_GRAVITY_START_SPEED = -25
-            elif powerups_rect.bottom != GROUND_Y and lives < 3:
+            elif powerups_rect.bottom != 310 and lives < 3:
                 lives += 1
                 guava_active = True
                 guava_start = pygame.time.get_ticks()
