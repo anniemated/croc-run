@@ -20,6 +20,7 @@ screen_type = 1 # 1: menu, 2: game, 3: game over
 menu_type = 1 # 1: menu, 2: how to play/controls, 3: level select
 GROUND_Y = 300  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -22.5  # The speed at which the player jumps
+swamp_sprite_fix = 300
 players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
 high_score = 0
@@ -79,11 +80,26 @@ player_index = 0
 player = player_walk[player_index]
 
 # Load obstacles
-cacti_surf = pygame.image.load("graphics/obstacles/egg/egg_1.png").convert_alpha()
-cacti_surf_2 = pygame.image.load("graphics/obstacles/egg/egg_2.png").convert_alpha()
-cacti_idle = [cacti_surf,cacti_surf_2]
-cacti_index = 0
-cacti = cacti_idle[cacti_index]
+cactisurf = pygame.image.load("graphics/obstacles/cacti/cacti1.png").convert_alpha()
+cactisurf2 = pygame.image.load("graphics/obstacles/cacti/cacti2.png").convert_alpha()
+branchsurf = pygame.image.load("graphics/obstacles/branch/branch1.png").convert_alpha()
+branchsurf2 = pygame.image.load("graphics/obstacles/branch/branch2.png").convert_alpha()
+shrubsurf = pygame.image.load("graphics/obstacles/shrub/shrub1.png").convert_alpha()
+shrubsurf2 = pygame.image.load("graphics/obstacles/shrub/shrub2.png").convert_alpha()
+
+cacti_surf = pygame.transform.scale(cactisurf,(55,80))
+cacti_surf_2 = pygame.transform.scale(cactisurf2,(55,80))
+branch_surf = pygame.transform.scale(branchsurf,(80,80))
+branch_surf_2 = pygame.transform.scale(branchsurf2,(80,80))
+shrub_surf = pygame.transform.scale(shrubsurf,(60,46))
+shrub_surf_2 = pygame.transform.scale(shrubsurf2,(60,46))
+
+plant_surf = cacti_surf
+plant_surf_2 = cacti_surf_2
+
+plant_idle = [plant_surf,plant_surf_2]
+plant_index = 0
+plant = plant_idle[plant_index]
 
 flysurf = pygame.image.load("graphics/obstacles/fly/fly1.png").convert_alpha()
 flysurf2 = pygame.image.load("graphics/obstacles/fly/fly2.png").convert_alpha()
@@ -120,7 +136,7 @@ game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L
 game_name_rect = game_name.get_rect(center=(400,200))
 
 # Load levels screen assets
-levels_text = game_font.render("Levels\nDAY: Press 1\nSUNSET: Press 2\nNIGHT: Press 3\nMENU: Press M",False,"Black")
+levels_text = game_font.render("Levels\nDESERT: Press 1\nSWAMP: Press 2\nJUNGLE: Press 3\nMENU: Press M",False,"Black")
 levels_rect = levels_text.get_rect(center=(400,180))
 
 # Load game over screen assets
@@ -170,14 +186,16 @@ def player_animation():
 
 def obstacle_animation():
     # Obstacles always idle
-    global cacti, cacti_index, fly, fly_index
-    cacti_index += 0.1
+    global plant, plant_index, fly, fly_index
+    plant_idle = [plant_surf,plant_surf_2]
+
+    plant_index += 0.1
     fly_index += 0.1
-    if cacti_index >= len(cacti_idle):
-        cacti_index = 0
+    if plant_index >= len(plant_idle):
+        plant_index = 0
     if fly_index >= len(fly_idle):
         fly_index = 0
-    cacti = cacti_idle[int(cacti_index)]
+    plant = plant_idle[int(plant_index)]
     fly = fly_idle[int(fly_index)]
 
 def obstacle_movement(obstacle_list):
@@ -185,8 +203,8 @@ def obstacle_movement(obstacle_list):
         for obstacles_rect in obstacle_list:
             obstacles_rect.x -= object_speed
             
-            if obstacles_rect.bottom == GROUND_Y:
-                screen.blit(cacti,obstacles_rect) 
+            if obstacles_rect.bottom == swamp_sprite_fix:
+                screen.blit(plant,obstacles_rect) 
             else:
                 screen.blit(fly,obstacles_rect)
 
@@ -288,11 +306,14 @@ def display_score():
     screen.blit(score_surf,score_rect)
 
 def menu():
+    screen.blit(SKY_SURF, (0, 0))
+    screen.blit(GROUND_SURF, (0, GROUND_Y))
     screen.fill("white")
     screen.blit(game_name,game_name_rect)
 
 def howtoplay():
-    screen.fill("black")
+    screen.blit(SKY_SURF, (0, 0))
+    screen.blit(GROUND_SURF, (0, GROUND_Y))
 
 def levels():
     screen.blit(SKY_SURF, (0, 0))
@@ -339,12 +360,21 @@ while running:
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_1:
                     SKY_SURF = SKY_SURF1
                     GROUND_SURF = GROUND_SURF1
+                    plant_surf = cacti_surf
+                    plant_surf_2 = cacti_surf_2
+                    swamp_sprite_fix = 300
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                     SKY_SURF = SKY_SURF2
                     GROUND_SURF = GROUND_SURF2
+                    plant_surf = branch_surf
+                    plant_surf_2 = branch_surf_2
+                    swamp_sprite_fix = 320
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
                     SKY_SURF = SKY_SURF3
                     GROUND_SURF = GROUND_SURF3
+                    plant_surf = shrub_surf
+                    plant_surf_2 = shrub_surf_2
+                    swamp_sprite_fix = 300
 
         # Player movement
         if screen_type == 2:
@@ -361,12 +391,15 @@ while running:
             # When player wants to play again by pressing ENTER
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 screen_type = 2
+                menu_type = 1
                 start_time = int(pygame.time.get_ticks())
                 current_score = 0
                 lives = 3
                 JUMP_GRAVITY_START_SPEED = -22.5
                 pineapple_active = False
                 guava_active = False
+                rainbow_active = False
+                object_speed = 5
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                 screen_type = 1
                 start_time = int(pygame.time.get_ticks())
@@ -375,10 +408,12 @@ while running:
                 JUMP_GRAVITY_START_SPEED = -22.5
                 pineapple_active = False
                 guava_active = False
+                rainbow_active = False
+                object_speed = 5
         
         if event.type == obstacle_timer and screen_type == 2:
             if randint(0,2):
-                obstacle_rect_list.append(cacti.get_rect(bottomleft = (randint(800,900),GROUND_Y)))
+                obstacle_rect_list.append(plant.get_rect(bottomleft = (randint(800,900),swamp_sprite_fix)))
             else:
                 obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),280)))
         
@@ -414,6 +449,7 @@ while running:
         if rainbow_active == False:
             if collisions(player_rect, obstacle_rect_list) != True:
                 lives -= 1
+                player = player_jump
                 ow_sound.play()
         
         # Remove hearts on screen when lives are lost
