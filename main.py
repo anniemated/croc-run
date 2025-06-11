@@ -85,8 +85,10 @@ cacti_idle = [cacti_surf,cacti_surf_2]
 cacti_index = 0
 cacti = cacti_idle[cacti_index]
 
-fly_surf = pygame.image.load("graphics/obstacles/fly/fly_1.png").convert_alpha()
-fly_surf_2 = pygame.image.load("graphics/obstacles/fly/fly_2.png").convert_alpha()
+flysurf = pygame.image.load("graphics/obstacles/fly/fly1.png").convert_alpha()
+flysurf2 = pygame.image.load("graphics/obstacles/fly/fly2.png").convert_alpha()
+fly_surf = pygame.transform.scale(flysurf,(70,50))
+fly_surf_2 = pygame.transform.scale(flysurf2,(70,50))
 fly_idle = [fly_surf,fly_surf_2]
 fly_index = 0
 fly = fly_idle[fly_index]
@@ -96,10 +98,10 @@ fly = fly_idle[fly_index]
 obstacle_rect_list = []
 
 # Load collectibles/powerups
-orange_surf = pygame.image.load("graphics/collectibles/dragonfruit.png").convert_alpha()
-orange = pygame.transform.scale(orange_surf,(100,100))
-apple_surf = pygame.image.load("graphics/collectibles/lychee.png").convert_alpha()
-apple = pygame.transform.scale(apple_surf,(100,90))
+dragonfruit_surf = pygame.image.load("graphics/collectibles/dragonfruit.png").convert_alpha()
+dragonfruit = pygame.transform.scale(dragonfruit_surf,(100,100))
+lychee_surf = pygame.image.load("graphics/collectibles/lychee.png").convert_alpha()
+lychee = pygame.transform.scale(lychee_surf,(100,90))
 
 guava_surf = pygame.image.load("graphics/collectibles/guava.png").convert_alpha()
 guava = pygame.transform.scale(guava_surf,(100,100))
@@ -198,9 +200,9 @@ def collectible_movement(collectible_list):
             collectibles_rect.x -= object_speed
 
             if collectibles_rect.bottom == 310:
-                screen.blit(orange,collectibles_rect)
+                screen.blit(dragonfruit,collectibles_rect)
             else:
-                screen.blit(apple,collectibles_rect)
+                screen.blit(lychee,collectibles_rect)
             
         collectible_list = [collectible for collectible in collectible_list if collectible.x > -100]
         return collectible_list
@@ -382,9 +384,9 @@ while running:
         
         if event.type == collectible_timer and screen_type == 2:
             if randint(0,2):
-                collectible_rect_list.append(orange.get_rect(bottomleft = (randint(800,900),310)))
+                collectible_rect_list.append(dragonfruit.get_rect(bottomleft = (randint(800,900),310)))
             else:
-                collectible_rect_list.append(apple.get_rect(bottomleft = (randint(800,900),230)))
+                collectible_rect_list.append(lychee.get_rect(bottomleft = (randint(800,900),230)))
         
         if event.type == powerup_timer and screen_type == 2:
             if randint(0,2):
