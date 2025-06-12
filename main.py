@@ -18,9 +18,9 @@ start_time = 0
 # Game state variables
 screen_type = 1 # 1: menu, 2: game, 3: game over
 menu_type = 1 # 1: menu, 2: how to play/controls, 3: level select
-GROUND_Y = 300  # The Y-coordinate of the ground level
+GROUND_Y = 360  # The Y-coordinate of the ground level
 JUMP_GRAVITY_START_SPEED = -22.5  # The speed at which the player jumps
-swamp_sprite_fix = 300
+swamp_sprite_fix = 360
 players_gravity_speed = 0  # The current speed at which the player falls
 current_score = 0
 high_score = 0
@@ -56,7 +56,7 @@ bg_music.play(loops = -1)
 # Load level assets
 skysurf1 = pygame.image.load("graphics/levels/sky1.png").convert()
 SKY_SURF1 = pygame.transform.scale(skysurf1,(800,400))
-groundsurf1 = pygame.image.load("graphics/levels/ground1.png").convert()
+groundsurf1 = pygame.image.load("graphics/levels/ground1.png").convert_alpha()
 GROUND_SURF1 = pygame.transform.scale(groundsurf1,(800,400))
 SKY_SURF2 = pygame.image.load("graphics/levels/sky2.png").convert()
 GROUND_SURF2 = pygame.image.load("graphics/levels/ground2.png").convert()
@@ -219,7 +219,7 @@ def collectible_movement(collectible_list):
         for collectibles_rect in collectible_list:
             collectibles_rect.x -= object_speed
 
-            if collectibles_rect.bottom == 310:
+            if collectibles_rect.bottom == 370:
                 screen.blit(dragonfruit,collectibles_rect)
             else:
                 screen.blit(lychee,collectibles_rect)
@@ -251,7 +251,7 @@ def powerup_movement(powerup_list):
         for powerups_rect in powerup_list:
             powerups_rect.x -= object_speed
 
-            if powerups_rect.bottom == 310:
+            if powerups_rect.bottom == 370:
                 screen.blit(pineapple,powerups_rect)
             else:
                 screen.blit(guava,powerups_rect)
@@ -323,7 +323,7 @@ def game():
 
     # Blit the level assets
     screen.blit(SKY_SURF, (0, 0))
-    screen.blit(GROUND_SURF, (0, GROUND_Y))
+    screen.blit(GROUND_SURF, (0,0))
     display_score()
 
 def game_over():
@@ -359,19 +359,19 @@ while running:
                     GROUND_SURF = GROUND_SURF1
                     plant_surf = cacti_surf
                     plant_surf_2 = cacti_surf_2
-                    swamp_sprite_fix = 300
+                    swamp_sprite_fix = 360
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                     SKY_SURF = SKY_SURF2
                     GROUND_SURF = GROUND_SURF2
                     plant_surf = branch_surf
                     plant_surf_2 = branch_surf_2
-                    swamp_sprite_fix = 320
+                    swamp_sprite_fix = 380
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
                     SKY_SURF = SKY_SURF3
                     GROUND_SURF = GROUND_SURF3
                     plant_surf = shrub_surf
                     plant_surf_2 = shrub_surf_2
-                    swamp_sprite_fix = 300
+                    swamp_sprite_fix = 360
 
         # Player movement
         if screen_type == 2:
@@ -412,22 +412,22 @@ while running:
             if randint(0,2):
                 obstacle_rect_list.append(plant.get_rect(bottomleft = (randint(800,900),swamp_sprite_fix)))
             else:
-                obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),280)))
+                obstacle_rect_list.append(fly.get_rect(bottomleft = (randint(800,900),330)))
         
         if event.type == collectible_timer and screen_type == 2:
             if randint(0,2):
-                collectible_rect_list.append(dragonfruit.get_rect(bottomleft = (randint(800,900),310)))
+                collectible_rect_list.append(dragonfruit.get_rect(bottomleft = (randint(800,900),370)))
             else:
-                collectible_rect_list.append(lychee.get_rect(bottomleft = (randint(800,900),230)))
+                collectible_rect_list.append(lychee.get_rect(bottomleft = (randint(800,900),310)))
         
         if event.type == powerup_timer and screen_type == 2:
             if randint(0,2):
-                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),310)))
+                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),370)))
             else:
-                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),301)))
+                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),371)))
 
         if event.type == rainbow_timer and screen_type == 2:
-            rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),310)))
+            rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),GROUND_Y + 10)))
 
 
     if screen_type == 2:
@@ -475,12 +475,12 @@ while running:
         # If player collides with powerup, add powerup condition
         if get_powerup(player_rect, powerup_rect_list) != True:
             sparkle_sound.play()
-            if powerups_rect.bottom == 310:
+            if powerups_rect.bottom == 370:
                 pineapple_active = True
                 pineapple_start = pygame.time.get_ticks()
                 pineapple_left = max(0, 5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
                 JUMP_GRAVITY_START_SPEED = -25
-            elif powerups_rect.bottom != 310 and lives < 3:
+            elif powerups_rect.bottom != 370 and lives < 3:
                 lives += 1
                 guava_active = True
                 guava_start = pygame.time.get_ticks()
