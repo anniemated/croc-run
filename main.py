@@ -26,6 +26,7 @@ current_score = 0
 high_score = 0
 lives = 3
 object_speed = 5
+textcolor = "Black"
 
 # Pineapple variables
 pineapple_active = False
@@ -58,10 +59,17 @@ skysurf1 = pygame.image.load("graphics/levels/sky1.png").convert()
 SKY_SURF1 = pygame.transform.scale(skysurf1,(800,400))
 groundsurf1 = pygame.image.load("graphics/levels/ground1.png").convert_alpha()
 GROUND_SURF1 = pygame.transform.scale(groundsurf1,(800,400))
-SKY_SURF2 = pygame.image.load("graphics/levels/sky2.png").convert()
-GROUND_SURF2 = pygame.image.load("graphics/levels/ground2.png").convert()
-SKY_SURF3 = pygame.image.load("graphics/levels/sky3.png").convert()
-GROUND_SURF3 = pygame.image.load("graphics/levels/ground3.png").convert()
+
+skysurf2 = pygame.image.load("graphics/levels/sky2.png").convert()
+SKY_SURF2 = pygame.transform.scale(skysurf2,(800,400))
+groundsurf2 = pygame.image.load("graphics/levels/ground2.png").convert_alpha()
+GROUND_SURF2 = pygame.transform.scale(groundsurf2,(800,400))
+
+skysurf3 = pygame.image.load("graphics/levels/sky3.png").convert()
+SKY_SURF3 = pygame.transform.scale(skysurf3,(800,400))
+groundsurf3 = pygame.image.load("graphics/levels/ground3.png").convert_alpha()
+GROUND_SURF3 = pygame.transform.scale(groundsurf3,(800,400))
+
 game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 40)
 
 SKY_SURF = SKY_SURF1
@@ -138,7 +146,7 @@ tutorial_screen = pygame.image.load("graphics/screens/tutorial.png").convert()
 tutorial = pygame.transform.scale(tutorial_screen,(800,400))
 
 # Load levels screen assets
-levels_text = game_font.render("Levels\nDESERT: Press 1\nSWAMP: Press 2\nJUNGLE: Press 3\nMENU: Press M",False,"White")
+levels_text = game_font.render("Levels\nDESERT: Press 1\nSWAMP: Press 2\nJUNGLE: Press 3\nMENU: Press M",False,textcolor)
 levels_rect = levels_text.get_rect(center=(400,180))
 
 # Load game over screen assets
@@ -149,10 +157,10 @@ leaderboard_rect = leaderboard_text.get_rect(center=(440,310))
 
 # Load powerup text assets
 pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
-pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "White")
-guava_text = game_font.render("+1 life", False, "White")
+pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, textcolor)
+guava_text = game_font.render("+1 life", False, textcolor)
 rainbow_left = (5000 - (pygame.time.get_ticks() - rainbow_start)) // 1000
-rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "White")
+rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, textcolor)
 
 # Load icons
 heart_surf = pygame.image.load("graphics/texticons/heart.png").convert_alpha()
@@ -251,7 +259,7 @@ def powerup_movement(powerup_list):
         for powerups_rect in powerup_list:
             powerups_rect.x -= object_speed
 
-            if powerups_rect.bottom == 370:
+            if powerups_rect.bottom == 360:
                 screen.blit(pineapple,powerups_rect)
             else:
                 screen.blit(guava,powerups_rect)
@@ -298,10 +306,10 @@ def display_score():
     for second in range(current_time):
         object_speed += 0.00005
     
-    time_surf = game_font.render(f"Time: {current_time}", False, "White")
+    time_surf = game_font.render(f"Time: {current_time}", False, textcolor)
     time_rect = time_surf.get_rect(center=(400,50))
 
-    score_surf = game_font.render(f"Score: {current_score}", False, "White")
+    score_surf = game_font.render(f"Score: {current_score}", False, textcolor)
     score_rect = score_surf.get_rect(center=(400,90))
 
     screen.blit(time_surf,time_rect)
@@ -360,18 +368,21 @@ while running:
                     plant_surf = cacti_surf
                     plant_surf_2 = cacti_surf_2
                     swamp_sprite_fix = 360
+                    textcolor = "Black"
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_2:
                     SKY_SURF = SKY_SURF2
                     GROUND_SURF = GROUND_SURF2
                     plant_surf = branch_surf
                     plant_surf_2 = branch_surf_2
                     swamp_sprite_fix = 380
+                    textcolor = "Black"
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_3:
                     SKY_SURF = SKY_SURF3
                     GROUND_SURF = GROUND_SURF3
                     plant_surf = shrub_surf
                     plant_surf_2 = shrub_surf_2
                     swamp_sprite_fix = 360
+                    textcolor = "White"
 
         # Player movement
         if screen_type == 2:
@@ -418,13 +429,13 @@ while running:
             if randint(0,2):
                 collectible_rect_list.append(dragonfruit.get_rect(bottomleft = (randint(800,900),370)))
             else:
-                collectible_rect_list.append(lychee.get_rect(bottomleft = (randint(800,900),310)))
+                collectible_rect_list.append(lychee.get_rect(bottomleft = (randint(800,900),300)))
         
         if event.type == powerup_timer and screen_type == 2:
             if randint(0,2):
-                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),370)))
+                powerup_rect_list.append(pineapple.get_rect(bottomleft = (randint(800,2000),360)))
             else:
-                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),371)))
+                powerup_rect_list.append(guava.get_rect(bottomleft = (randint(800,2000),375)))
 
         if event.type == rainbow_timer and screen_type == 2:
             rainbow_rect_list.append(rainbow.get_rect(bottomleft = (randint(800,2000),GROUND_Y + 10)))
@@ -475,12 +486,12 @@ while running:
         # If player collides with powerup, add powerup condition
         if get_powerup(player_rect, powerup_rect_list) != True:
             sparkle_sound.play()
-            if powerups_rect.bottom == 370:
+            if powerups_rect.bottom == 360:
                 pineapple_active = True
                 pineapple_start = pygame.time.get_ticks()
                 pineapple_left = max(0, 5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
                 JUMP_GRAVITY_START_SPEED = -25
-            elif powerups_rect.bottom != 370 and lives < 3:
+            elif powerups_rect.bottom != 360 and lives < 3:
                 lives += 1
                 guava_active = True
                 guava_start = pygame.time.get_ticks()
@@ -490,7 +501,7 @@ while running:
             pineapple_elapsed = pygame.time.get_ticks() - pineapple_start
             pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
         # Blit pineapple timer text
-            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "White")
+            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, textcolor)
             if rainbow_active == False:
                 screen.blit(pineapple_text, (22, 20))
         
@@ -520,7 +531,7 @@ while running:
             rainbow_elapsed = pygame.time.get_ticks() - rainbow_start
             rainbow_left = max(0, 5000 - rainbow_elapsed) // 1000
         # Blit rainbow timer text
-            rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "White")
+            rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, textcolor)
             screen.blit(rainbow_text, (22, 20))
         
         # Check if expired
