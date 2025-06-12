@@ -37,8 +37,6 @@ guava_active = False
 guava_start = 0
 guava_elapsed = pygame.time.get_ticks() - guava_start
 
-# Durian variables
-
 # Rainbow variables
 rainbow_active = False
 rainbow_start = 0
@@ -56,13 +54,15 @@ bg_music.set_volume(0.7)
 bg_music.play(loops = -1)
 
 # Load level assets
-SKY_SURF1 = pygame.image.load("graphics/levels/sky1.png").convert()
-GROUND_SURF1 = pygame.image.load("graphics/levels/ground1.png").convert()
+skysurf1 = pygame.image.load("graphics/levels/sky1.png").convert()
+SKY_SURF1 = pygame.transform.scale(skysurf1,(800,400))
+groundsurf1 = pygame.image.load("graphics/levels/ground1.png").convert()
+GROUND_SURF1 = pygame.transform.scale(groundsurf1,(800,400))
 SKY_SURF2 = pygame.image.load("graphics/levels/sky2.png").convert()
 GROUND_SURF2 = pygame.image.load("graphics/levels/ground2.png").convert()
 SKY_SURF3 = pygame.image.load("graphics/levels/sky3.png").convert()
 GROUND_SURF3 = pygame.image.load("graphics/levels/ground3.png").convert()
-game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 45)
+game_font = pygame.font.Font("graphics/texticons/BaiJamjuree-Bold.ttf", 40)
 
 SKY_SURF = SKY_SURF1
 GROUND_SURF = GROUND_SURF1
@@ -109,8 +109,6 @@ fly_idle = [fly_surf,fly_surf_2]
 fly_index = 0
 fly = fly_idle[fly_index]
 
-#river_surf = pygame.image.load("graphics/river.png").convert_alpha()
-
 obstacle_rect_list = []
 
 # Load collectibles/powerups
@@ -132,25 +130,29 @@ powerup_rect_list = []
 rainbow_rect_list = []
 
 # Load menu screen assets
-game_name = game_font.render("CROC RUN\nPlay (ENTER)\nHow to play (H)\nLevels (L)",False,"Black")
-game_name_rect = game_name.get_rect(center=(400,200))
+start_screen = pygame.image.load("graphics/screens/startscreen.png").convert()
+startscreen = pygame.transform.scale(start_screen,(800,400))
+
+# Load tutorial screen assets
+tutorial_screen = pygame.image.load("graphics/screens/tutorial.png").convert()
+tutorial = pygame.transform.scale(tutorial_screen,(800,400))
 
 # Load levels screen assets
-levels_text = game_font.render("Levels\nDESERT: Press 1\nSWAMP: Press 2\nJUNGLE: Press 3\nMENU: Press M",False,"Black")
+levels_text = game_font.render("Levels\nDESERT: Press 1\nSWAMP: Press 2\nJUNGLE: Press 3\nMENU: Press M",False,"White")
 levels_rect = levels_text.get_rect(center=(400,180))
 
 # Load game over screen assets
-game_over_text = game_font.render("Game Over...\nTry again (ENTER)\nBack to menu (M)",False,"White")
-game_over_rect = game_over_text.get_rect(center=(550,200))
+gameover_screen = pygame.image.load("graphics/screens/gameover.png").convert()
+gameover = pygame.transform.scale(gameover_screen,(800,400))
 leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
-leaderboard_rect = leaderboard_text.get_rect(center=(180,200))
+leaderboard_rect = leaderboard_text.get_rect(center=(440,310))
 
 # Load powerup text assets
 pineapple_left = (5000 - (pygame.time.get_ticks() - pineapple_start)) // 1000
-pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
-guava_text = game_font.render("+1 life", False, "Black")
+pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "White")
+guava_text = game_font.render("+1 life", False, "White")
 rainbow_left = (5000 - (pygame.time.get_ticks() - rainbow_start)) // 1000
-rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "Black")
+rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "White")
 
 # Load icons
 heart_surf = pygame.image.load("graphics/texticons/heart.png").convert_alpha()
@@ -296,24 +298,20 @@ def display_score():
     for second in range(current_time):
         object_speed += 0.00005
     
-    time_surf = game_font.render(f"Time: {current_time}", False, "Black")
+    time_surf = game_font.render(f"Time: {current_time}", False, "White")
     time_rect = time_surf.get_rect(center=(400,50))
 
-    score_surf = game_font.render(f"Score: {current_score}", False, "Black")
+    score_surf = game_font.render(f"Score: {current_score}", False, "White")
     score_rect = score_surf.get_rect(center=(400,90))
 
     screen.blit(time_surf,time_rect)
     screen.blit(score_surf,score_rect)
 
 def menu():
-    screen.blit(SKY_SURF, (0, 0))
-    screen.blit(GROUND_SURF, (0, GROUND_Y))
-    screen.fill("white")
-    screen.blit(game_name,game_name_rect)
+    screen.blit(startscreen)
 
 def howtoplay():
-    screen.blit(SKY_SURF, (0, 0))
-    screen.blit(GROUND_SURF, (0, GROUND_Y))
+    screen.blit(tutorial)
 
 def levels():
     screen.blit(SKY_SURF, (0, 0))
@@ -329,8 +327,7 @@ def game():
     display_score()
 
 def game_over():
-    screen.fill("black")
-    screen.blit(game_over_text, game_over_rect)
+    screen.blit(gameover)
     leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
     screen.blit(leaderboard_text, leaderboard_rect)
 
@@ -345,13 +342,13 @@ while running:
         if screen_type == 1:
             if menu_type == 1:
                 menu()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_t:
                     menu_type = 2
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_l:
                     menu_type = 3
             elif menu_type == 2:
                 howtoplay()
-                if event.type == pygame.KEYDOWN and (event.key == pygame.K_h or event.key == pygame.K_m):
+                if event.type == pygame.KEYDOWN and (event.key == pygame.K_t or event.key == pygame.K_m):
                     menu_type = 1
             elif menu_type == 3:
                 levels()
@@ -493,7 +490,7 @@ while running:
             pineapple_elapsed = pygame.time.get_ticks() - pineapple_start
             pineapple_left = max(0, 5000 - pineapple_elapsed) // 1000
         # Blit pineapple timer text
-            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "Black")
+            pineapple_text = game_font.render(f"High jump:\n{pineapple_left}s", False, "White")
             if rainbow_active == False:
                 screen.blit(pineapple_text, (22, 20))
         
@@ -523,7 +520,7 @@ while running:
             rainbow_elapsed = pygame.time.get_ticks() - rainbow_start
             rainbow_left = max(0, 5000 - rainbow_elapsed) // 1000
         # Blit rainbow timer text
-            rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "Black")
+            rainbow_text = game_font.render(f"Invincibility:\n{rainbow_left}s", False, "White")
             screen.blit(rainbow_text, (22, 20))
         
         # Check if expired
