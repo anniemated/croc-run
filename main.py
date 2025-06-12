@@ -183,6 +183,7 @@ speed_timer = pygame.USEREVENT + 5
 pygame.time.set_timer(speed_timer,1)
 
 def player_animation():
+    """Animate the player sprite between walking frames or show jump frame when in air."""
     # Animated while walking
     global player, player_index
 
@@ -195,6 +196,7 @@ def player_animation():
         player = player_walk[int(player_index)]
 
 def obstacle_animation():
+    """Animate obstacle sprites."""
     # Obstacles always idle
     global plant, plant_index, fly, fly_index
     plant_idle = [plant_surf,plant_surf_2]
@@ -209,6 +211,14 @@ def obstacle_animation():
     fly = fly_idle[int(fly_index)]
 
 def obstacle_movement(obstacle_list):
+    """Move obstacles across the screen and remove off-screen obstacles.
+    
+    Arguments:
+        obstacle_list: List of obstacle rectangles to move and draw
+        
+    Returns:
+        List of obstacles that are still on screen
+    """
     if obstacle_list:
         for obstacles_rect in obstacle_list:
             obstacles_rect.x -= object_speed
@@ -223,6 +233,14 @@ def obstacle_movement(obstacle_list):
     else: return []
 
 def collectible_movement(collectible_list):
+    """Move collectibles across the screen and remove off-screen collectibles.
+    
+    Arguments:
+        collectible_list: List of collectible rectangles to move and draw
+        
+    Returns:
+        List of collectibles that are still on screen
+    """
     if collectible_list:
         for collectibles_rect in collectible_list:
             collectibles_rect.x -= object_speed
@@ -237,6 +255,15 @@ def collectible_movement(collectible_list):
     else: return []
 
 def collisions(player,obstacles):
+    """Check for collisions between player and obstacles.
+    
+    Args:
+        player: Player rectangle
+        obstacles: List of obstacle rectangles
+        
+    Returns:
+        False if collision detected, True otherwise
+    """
     if obstacles:
         for obstacles_rect in obstacles:
             if player.colliderect(obstacles_rect):
@@ -245,6 +272,15 @@ def collisions(player,obstacles):
     return True
 
 def collections(player,collectibles):
+    """Check for collections between player and collectibles.
+    
+    Arguments:
+        player: Player rectangle
+        collectibles: List of collectible rectangles
+        
+    Returns:
+        False if collection detected (to trigger score increase), True otherwise
+    """
     global current_score
     if collectibles:
         for collectibles_rect in collectibles:
@@ -254,6 +290,14 @@ def collections(player,collectibles):
     return True
 
 def powerup_movement(powerup_list):
+    """Move powerups across the screen and remove off-screen powerups.
+    
+    Arguments:
+        powerup_list: List of powerup rectangles to move and draw
+        
+    Returns:
+        List of powerups that are still on screen
+    """
     global powerups_rect
     if powerup_list:
         for powerups_rect in powerup_list:
@@ -269,6 +313,15 @@ def powerup_movement(powerup_list):
     else: return []
 
 def get_powerup(player,powerups):
+    """Check for powerup collection between player and powerups.
+    
+    Arguments:
+        player: Player rectangle
+        powerups: List of powerup rectangles
+        
+    Returns:
+        False if powerup collected, True otherwise
+    """
     if powerups:
         for powerup_rect in powerups:
             if player.colliderect(powerup_rect):
@@ -277,6 +330,14 @@ def get_powerup(player,powerups):
     return True
 
 def rainbow_movement(rainbow_list):
+    """Move rainbow powerups across the screen and remove off-screen ones.
+    
+    Arguments:
+        rainbow_list: List of rainbow powerup rectangles to move and draw
+        
+    Returns:
+        List of rainbow powerups that are still on screen
+    """
     global rainbows_rect
     if rainbow_list:
         for rainbows_rect in rainbow_list:
@@ -289,6 +350,15 @@ def rainbow_movement(rainbow_list):
     else: return []
 
 def get_rainbow(player,rainbows):
+    """Check for rainbow powerup collection between player and rainbows.
+    
+    Arguments:
+        player: Player rectangle
+        rainbows: List of rainbow powerup rectangles
+        
+    Returns:
+        False if rainbow collected, True otherwise
+    """
     if rainbows:
         for rainbow_rect in rainbows:
             if player.colliderect(rainbow_rect):
@@ -297,6 +367,7 @@ def get_rainbow(player,rainbows):
     return True
  
 def display_score():
+    """Display current game time and score, increase game speed over time."""
     global object_speed
     current_time = pygame.time.get_ticks() - start_time
     current_time //= 1000
@@ -316,17 +387,21 @@ def display_score():
     screen.blit(score_surf,score_rect)
 
 def menu():
+    """Display the main menu screen."""
     screen.blit(startscreen)
 
 def howtoplay():
+    """Display the tutorial/how-to-play screen."""
     screen.blit(tutorial)
 
 def levels():
+    """Display the level selection screen."""
     screen.blit(SKY_SURF, (0, 0))
     screen.blit(GROUND_SURF, (0, GROUND_Y))
     screen.blit(levels_text,levels_rect)
 
 def game():
+    """Display the main game screen with background and score."""
     screen.fill("purple")  # Wipe the screen
 
     # Blit the level assets
@@ -335,6 +410,7 @@ def game():
     display_score()
 
 def game_over():
+    """Display the game over screen with high score."""
     screen.blit(gameover)
     leaderboard_text = game_font.render(f"High score:\n{high_score}",False,"White")
     screen.blit(leaderboard_text, leaderboard_rect)
